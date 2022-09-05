@@ -1,5 +1,6 @@
 import React from "react";
 import {BsCaretDownFill} from 'react-icons/bs'
+import { astar, astar_if_guarantees, bfs, bfs_if_guarantees, dfs, dfs_if_guarantees, dijkstra, dijkstra_if_guarantees } from "../helper/algoAbouts";
 import { COLS, DEFAULT_SPEED, FASTEST_SPEED, FAST_SPEED, INIT_END_POS, INIT_START_POS, ROWS, SLOWEST_SPEED, SLOW_SPEED } from "../helper/constants";
 import { getGridToggledWall, getGridWithMaze, getInitGrid, gridDynamicNodes, resetGridWithWalls } from "../helper/getGrid";
 import { randomMaze } from "../MazeGeneration/randomMaze";
@@ -29,9 +30,9 @@ export default class PathVisualizer extends React.Component {
     
 
     handleMouseDown(row, col) {
-        if (this.state.isRunning)
+        const { grid, mainIsPressed, isRunning } = this.state;
+        if (isRunning)
             return;
-        const {grid, mainIsPressed} = this.state;
         const node = grid[row][col];
         if (node.isStart && !node.isFinish){
             this.setState({mainIsPressed: 'start'});
@@ -129,6 +130,7 @@ export default class PathVisualizer extends React.Component {
     render() {
         return (
             <div className="container">
+                
                 <div className="nav-bar">
                     <button className="not-hidden-refresh" onClick={() => window.location.reload(false)}>Path Visualizer</button>
                     <div className="dropdown-menu">
@@ -140,12 +142,10 @@ export default class PathVisualizer extends React.Component {
                             <button className="hidden" onClick={() => this.changeCurrentAlgo('A *')}>A *</button>
                         </div>
                     </div>
-                    
-                    <button className="not-hidden" onClick={() => this.clearPath()}>Clear Paths</button>
-                    <button className="not-hidden" onClick={() => this.clearBoard()}>Clear Board</button>
-
-                    <div className="dropdown-menu">
-                    <button className="menu-btn" onClick={() => this.dropMenuBtn('maze-menu-content')}>Generate Maze <BsCaretDownFill/></button>
+                        <button className="not-hidden" onClick={() => this.clearPath()}>Clear Paths</button>
+                        <button className="not-hidden" onClick={() => this.clearBoard()}>Clear Board</button>
+                        <div className="dropdown-menu">
+                        <button className="menu-btn" onClick={() => this.dropMenuBtn('maze-menu-content')}>Generate Maze <BsCaretDownFill/></button>
                         <div className="maze-menu-content">
                             <button className="hidden" onClick={() => this.visualizeMaze()}>Random Maze</button>
                         </div>
@@ -160,12 +160,15 @@ export default class PathVisualizer extends React.Component {
                             <button className="hidden" onClick={() => this.changeCurrentSpeed('Slowest')}>Slowest</button>
                         </div>
                     </div>
-                    <button className="play" onClick={() => this.visualizeAlgo()}>Visualize</button>
-                   
+                    <button className="play" onClick={() => this.visualizeAlgo()}>Visualize</button>   
                 </div>
-           
                 <div className="grid">
                     {this.renderGrid()}
+                </div>
+                <div className="about-container">
+                   <h1 className="about-header"></h1>
+                   <div className="about-content"></div>
+                   <div className="guarantees"></div>
                 </div>
             </div>
         )
@@ -197,6 +200,24 @@ export default class PathVisualizer extends React.Component {
         this.setState({algorithm: algorithm});
         const visualizeBtn = document.querySelector('.play');
         visualizeBtn.innerHTML = `Visualize ${algorithm}`;
+
+        const aboutHeader = document.querySelector('.about-header');
+        aboutHeader.innerHTML = algorithm === 'DFS' ? 'Depth First Search' : 
+        algorithm === 'BFS' ? 'Breadth First Search' : 
+        algorithm === 'A *' ? 'A * Search' : 
+        algorithm; 
+
+        const aboutContent = document.querySelector('.about-content');
+        aboutContent.innerHTML = algorithm === 'DFS' ? dfs : 
+        algorithm === 'BFS' ? bfs : 
+        algorithm === 'A *' ? astar : 
+        dijkstra; 
+
+        const guaranteesContent = document.querySelector('.guarantees');
+        guaranteesContent.innerHTML = algorithm === 'DFS' ? dfs_if_guarantees : 
+        algorithm === 'BFS' ? bfs_if_guarantees : 
+        algorithm === 'A *' ? astar_if_guarantees : 
+        dijkstra_if_guarantees;
     }
 
     
@@ -210,9 +231,9 @@ export default class PathVisualizer extends React.Component {
 
     visualizeMaze = async() => {
        
-        if (this.state.isRunning) return;
+        const { grid, speed, isRunning } = this.state;
+        if (isRunning) return;
         this.clearPath();
-        const { grid, speed } = this.state;
         
         // Set the required fields
         this.setState({isRunning: true});
@@ -221,7 +242,7 @@ export default class PathVisualizer extends React.Component {
          // Get a random Maze
         const mazeAnimation = randomMaze(grid);
         
-        // Animate
+        // Animate the maze
         animateMaze(mazeAnimation, speed);
 
         // wait for animation to be done
@@ -236,24 +257,26 @@ export default class PathVisualizer extends React.Component {
     
 
     visualizeAlgo = async() => {
-        if (this.state.isRunning) return;
-
-        if (this.state.algorithm === ''){
+        const { grid, algorithm, start_pos, end_pos, speed, isRunning } = this.state;
+        if (isRunning) return;
+        if (algorithm === ''){
             this.changeHTMLtextVisualizeBtn();
             return;
         }
         // Reset the grid. For multiple clicks on visualize
         this.clearPath();
-        const { grid, algorithm, start_pos, end_pos, speed } = this.state;
+        //const { grid, algorithm, start_pos, end_pos, speed } = this.state;
         const [visitedNodesInOrder, shortestPath] = getAnimationsAlgoList(grid, start_pos, end_pos, algorithm);
     
         // Set the State isRunning to true
         this.setState({isRunning: true});
         this.changeColorVisualizeBtn(true);
+
+        // Animate the Algorithm
         animateVisitedNodes(visitedNodesInOrder, shortestPath, speed);
 
         // Set the state isRunning to false
-        await this.ToggleStateIsRunning(false, visitedNodesInOrder.length * 2.4 * speed);
+        await this.ToggleStateIsRunning(false, visitedNodesInOrder.length * 2.3 * speed);
         this.changeColorVisualizeBtn(false);
     }
 
