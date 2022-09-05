@@ -1,5 +1,4 @@
 import React from "react";
-import {BsCaretDownFill} from 'react-icons/bs'
 import { astar, astar_if_guarantees, bfs, bfs_if_guarantees, dfs, dfs_if_guarantees, dijkstra, dijkstra_if_guarantees } from "../helper/algoAbouts";
 import { COLS, DEFAULT_SPEED, FASTEST_SPEED, FAST_SPEED, INIT_END_POS, INIT_START_POS, ROWS, SLOWEST_SPEED, SLOW_SPEED } from "../helper/constants";
 import { getGridToggledWall, getGridWithMaze, getInitGrid, gridDynamicNodes, resetGridWithWalls } from "../helper/getGrid";
@@ -7,6 +6,7 @@ import { randomMaze } from "../MazeGeneration/randomMaze";
 import { animateVisitedNodes } from "./animations/algoAnimations";
 import { getAnimationsAlgoList } from "./animations/getAnimationAlgoList";
 import { animateMaze } from "./animations/mazeAnimation";
+import NavBar from "./Navbar";
 import Node from "./Node/Node";
 import './PathVisualizer.css';
 
@@ -93,7 +93,7 @@ export default class PathVisualizer extends React.Component {
         this.setState({ grid: newGrid });
     }
 
-    dropMenuBtn(menu_type) {
+    dropMenuBtn = (menu_type) => {
         const menu_block = document.querySelector(`.${menu_type}`);
         menu_block.classList.toggle('show');
     }
@@ -130,43 +130,22 @@ export default class PathVisualizer extends React.Component {
     render() {
         return (
             <div className="container">
-                
-                <div className="nav-bar">
-                    <button className="not-hidden-refresh" onClick={() => window.location.reload(false)}>Path Visualizer</button>
-                    <div className="dropdown-menu">
-                        <button className="menu-btn" onClick={() => this.dropMenuBtn('menu-content')}>Algorithms <BsCaretDownFill/></button>
-                        <div className="menu-content">
-                            <button className="hidden" onClick={() => this.changeCurrentAlgo('Dijkstra')}>Dijkstra</button>
-                            <button className="hidden" onClick={() => this.changeCurrentAlgo('DFS')}>DFS</button>
-                            <button className="hidden" onClick={() => this.changeCurrentAlgo('BFS')}>BFS</button>
-                            <button className="hidden" onClick={() => this.changeCurrentAlgo('A *')}>A *</button>
-                        </div>
-                    </div>
-                        <button className="not-hidden" onClick={() => this.clearPath()}>Clear Paths</button>
-                        <button className="not-hidden" onClick={() => this.clearBoard()}>Clear Board</button>
-                        <div className="dropdown-menu">
-                        <button className="menu-btn" onClick={() => this.dropMenuBtn('maze-menu-content')}>Generate Maze <BsCaretDownFill/></button>
-                        <div className="maze-menu-content">
-                            <button className="hidden" onClick={() => this.visualizeMaze()}>Random Maze</button>
-                        </div>
-                    </div>
-                    <div className="dropdown-menu">
-                        <button className="menu-btn"  onClick={() => this.dropMenuBtn('speed-menu-content')}>Speed <BsCaretDownFill/></button>
-                        <div className="speed-menu-content">
-                            <button className="hidden" onClick={() => this.changeCurrentSpeed('Fastest')}>Fastest</button>
-                            <button className="hidden" onClick={() => this.changeCurrentSpeed('Fast')}>Fast</button>
-                            <button className="hidden" onClick={() => this.changeCurrentSpeed('Normal')}>Normal</button>
-                            <button className="hidden" onClick={() => this.changeCurrentSpeed('Slow')}>Slow</button>
-                            <button className="hidden" onClick={() => this.changeCurrentSpeed('Slowest')}>Slowest</button>
-                        </div>
-                    </div>
-                    <button className="play" onClick={() => this.visualizeAlgo()}>Visualize</button>   
-                </div>
+                <NavBar
+                    dropMenuBtn = {this.dropMenuBtn}
+                    changeCurrentAlgo = {this.changeCurrentAlgo}
+                    changeCurrentSpeed = {this.changeCurrentSpeed}
+                    clearBoard = {this.clearBoard}
+                    clearPath = {this.clearPath}
+                    visualizeAlgo = {this.visualizeAlgo}
+                    visualizeMaze = {this.visualizeMaze}
+                />
+               
                 <div className="grid">
                     {this.renderGrid()}
                 </div>
+
                 <div className="about-container">
-                   <h1 className="about-header"></h1>
+                   <div className="about-header"></div>
                    <div className="about-content"></div>
                    <div className="guarantees"></div>
                 </div>
@@ -174,7 +153,7 @@ export default class PathVisualizer extends React.Component {
         )
     }
 
-    changeCurrentSpeed(SpeedType){
+    changeCurrentSpeed = (SpeedType) => {
         switch (SpeedType) {
             case 'Fastest':
                 this.setState({speed: FASTEST_SPEED})
@@ -196,7 +175,7 @@ export default class PathVisualizer extends React.Component {
         }
     }
 
-    changeCurrentAlgo(algorithm){
+    changeCurrentAlgo = (algorithm) => {
         this.setState({algorithm: algorithm});
         const visualizeBtn = document.querySelector('.play');
         visualizeBtn.innerHTML = `Visualize ${algorithm}`;
@@ -306,7 +285,7 @@ export default class PathVisualizer extends React.Component {
         }
     }
 
-    clearPath () {
+    clearPath = () => {
         const { start_pos, end_pos, isRunning, grid } = this.state
         if (isRunning) return;
         this.resetVisitedShortestPathNodes();
@@ -314,7 +293,7 @@ export default class PathVisualizer extends React.Component {
     }
 
 
-    clearBoard() {
+    clearBoard = () => {
         const { isRunning, start_pos, end_pos } = this.state
         if (isRunning) return;
         this.resetVisitedShortestPathNodes();
