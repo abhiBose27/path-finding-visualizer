@@ -3,6 +3,7 @@ import { astar, astar_if_guarantees, bfs, bfs_if_guarantees, dfs, dfs_if_guarant
 import { COLS, DEFAULT_SPEED, FASTEST_SPEED, FAST_SPEED, INIT_END_POS, INIT_START_POS, ROWS, SLOWEST_SPEED, SLOW_SPEED } from "../helper/constants";
 import { getGridToggledWall, getGridWithMaze, getInitGrid, gridDynamicNodes, resetGridWithWalls } from "../helper/getGrid";
 import { randomMaze } from "../MazeGeneration/randomMaze";
+import { recursiveDivisionMaze } from "../MazeGeneration/recursiveDivision";
 import { animateVisitedNodes } from "./animations/algoAnimations";
 import { getAnimationsAlgoList } from "./animations/getAnimationAlgoList";
 import { animateMaze } from "./animations/mazeAnimation";
@@ -208,19 +209,27 @@ export default class PathVisualizer extends React.Component {
     
 
 
-    visualizeMaze = async() => {
+    visualizeMaze = async(MazeType) => {
        
-        const { grid, speed, isRunning } = this.state;
+        const { grid, speed, isRunning, start_pos, end_pos } = this.state;
         if (isRunning) return;
         this.clearPath();
+        
         
         // Set the required fields
         this.setState({isRunning: true});
         this.changeColorVisualizeBtn(true);
 
-         // Get a random Maze
-        const mazeAnimation = randomMaze(grid);
-        
+        // Get a random Maze
+        let mazeAnimation = [];
+
+        if (MazeType === 'Recursive-div'){
+            mazeAnimation =  recursiveDivisionMaze(grid, grid[start_pos.row][start_pos.col], grid[end_pos.row][end_pos.col]);
+        }
+        if (MazeType === 'Rand-maze'){
+            mazeAnimation = randomMaze(grid);
+        }
+
         // Animate the maze
         animateMaze(mazeAnimation, speed);
 
