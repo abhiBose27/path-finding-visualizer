@@ -24,6 +24,7 @@ export default class NavBar extends React.Component {
                 <div className="maze-menu-content">
                     <button className="hidden" onClick={() => visualizeMaze('Rand-maze')}>Random Maze</button>
                     <button className="hidden" onClick={() => visualizeMaze('Recursive-div')}>Recursive Division</button>
+                    <button className="hidden" onClick={() => visualizeMaze('Prim-maze')}>Prim Maze</button>
                 </div>
             </div>
             <div className="dropdown-menu">

@@ -2,10 +2,8 @@ import React from "react";
 import { astar, astar_if_guarantees, bfs, bfs_if_guarantees, dfs, dfs_if_guarantees, dijkstra, dijkstra_if_guarantees } from "../helper/algoAbouts";
 import { COLS, DEFAULT_SPEED, FASTEST_SPEED, FAST_SPEED, INIT_END_POS, INIT_START_POS, ROWS, SLOWEST_SPEED, SLOW_SPEED } from "../helper/constants";
 import { getGridToggledWall, getGridWithMaze, getInitGrid, gridDynamicNodes, resetGridWithWalls } from "../helper/getGrid";
-import { randomMaze } from "../MazeGeneration/randomMaze";
-import { recursiveDivisionMaze } from "../MazeGeneration/recursiveDivision";
 import { animateVisitedNodes } from "./animations/algoAnimations";
-import { getAnimationsAlgoList } from "./animations/getAnimationAlgoList";
+import { getAnimationMazeList, getAnimationsAlgoList } from "./animations/getAnimationAlgoList";
 import { animateMaze } from "./animations/mazeAnimation";
 import NavBar from "./Navbar";
 import Node from "./Node/Node";
@@ -211,34 +209,30 @@ export default class PathVisualizer extends React.Component {
 
     visualizeMaze = async(MazeType) => {
        
-        const { grid, speed, isRunning, start_pos, end_pos } = this.state;
-        if (isRunning) return;
-        this.clearPath();
-        
+        //const { grid, speed, isRunning, start_pos, end_pos } = this.state;
+        if (this.state.isRunning) return;
+        //this.clearPath();
+
+        //primsMaze(this.state.start_pos, this.state.end_pos);
+        this.clearBoard();
         
         // Set the required fields
         this.setState({isRunning: true});
         this.changeColorVisualizeBtn(true);
 
         // Get a random Maze
-        let mazeAnimation = [];
+        const mazeAnimation = getAnimationMazeList(this.state.grid, this.state.start_pos, this.state.end_pos, MazeType);
 
-        if (MazeType === 'Recursive-div'){
-            mazeAnimation =  recursiveDivisionMaze(grid, grid[start_pos.row][start_pos.col], grid[end_pos.row][end_pos.col]);
-        }
-        if (MazeType === 'Rand-maze'){
-            mazeAnimation = randomMaze(grid);
-        }
-
+       
         // Animate the maze
-        animateMaze(mazeAnimation, speed);
+        animateMaze(mazeAnimation, this.state.speed);
 
         // wait for animation to be done
-        await this.ToggleStateIsRunning(false, mazeAnimation.length * speed);
+        await this.ToggleStateIsRunning(false, mazeAnimation.length * this.state.speed);
 
         // Set the fields again
         this.changeColorVisualizeBtn(false);
-        this.setState({grid: getGridWithMaze(grid, mazeAnimation)});
+        this.setState({grid: getGridWithMaze(this.state.grid, mazeAnimation)});
     }
 
 
@@ -246,14 +240,15 @@ export default class PathVisualizer extends React.Component {
 
     visualizeAlgo = async() => {
         const { grid, algorithm, start_pos, end_pos, speed, isRunning } = this.state;
+        
         if (isRunning) return;
+        
         if (algorithm === ''){
             this.changeHTMLtextVisualizeBtn();
             return;
         }
         // Reset the grid. For multiple clicks on visualize
         this.clearPath();
-        //const { grid, algorithm, start_pos, end_pos, speed } = this.state;
         const [visitedNodesInOrder, shortestPath] = getAnimationsAlgoList(grid, start_pos, end_pos, algorithm);
     
         // Set the State isRunning to true
@@ -312,18 +307,18 @@ export default class PathVisualizer extends React.Component {
 
 
 window.onclick = function(event) {
-    if (!event.target.matches('.menu-btn')){
-        const menu_block_algo = document.querySelector('.menu-content');
-        const menu_block_maze = document.querySelector('.maze-menu-content');
-        const menu_block_speed = document.querySelector('.speed-menu-content');
-        if (menu_block_algo.classList.contains('show'))
-            menu_block_algo.classList.remove('show');
-        
-        if (menu_block_maze.classList.contains('show'))
-            menu_block_maze.classList.remove('show');
+    if (event.target.matches('.menu-btn')) return;
 
-        if (menu_block_speed.classList.contains('show'))
-            menu_block_speed.classList.remove('show');
-    }
+    const menu_block_algo = document.querySelector('.menu-content');
+    const menu_block_maze = document.querySelector('.maze-menu-content');
+    const menu_block_speed = document.querySelector('.speed-menu-content');
+    if (menu_block_algo.classList.contains('show'))
+        menu_block_algo.classList.remove('show');
+    
+    if (menu_block_maze.classList.contains('show'))
+        menu_block_maze.classList.remove('show');
+
+    if (menu_block_speed.classList.contains('show'))
+        menu_block_speed.classList.remove('show');
 }
 
