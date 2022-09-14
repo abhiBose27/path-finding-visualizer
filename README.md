@@ -1,6 +1,6 @@
 # Path Finding Visualizer
 
-
+A Path finding visualizer that uses different algorithms to visualize a path on a grid. Notably A * and dijkstra. Also has the functionality to generate different mazes using different maze generating algorithms. So one can play around, visualize the difference in efficiency of different path finding algorithms on  a bigger and more complicated scale.
 
 # Getting Started:
 In the project directory, you can run:
