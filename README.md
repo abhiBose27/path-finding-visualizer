@@ -1,3 +1,7 @@
+# Path Finding Visualizer
+
+
+
 # Getting Started:
 In the project directory, you can run:
 ### `npm install`
